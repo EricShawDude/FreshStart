@@ -55,6 +55,9 @@ function handleServerMessage(event) {
         case 'start': // Starts the game 
             console.log(message.message);
             break;
+        case 'test':
+            console.log(message.message)
+            break;
         
         case 'victory':// If the player receives a victory message
             canvas.removeEventListener('click', handleCanvasClick);

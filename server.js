@@ -1,31 +1,49 @@
 // DATABASE CONNECTIONS
 var mysql = require('mysql');
 
+// too lazy to make env file, dont steal please :)
 var con = mysql.createConnection({
   host: "db-buf-05.sparkedhost.us",
   user: "u132904_RJbVrqE9qR",
-  password: "tNqe4!avJmtVc6IzFk4xd!O9"
+  password: "tNqe4!avJmtVc6IzFk4xd!O9",
+  database: "s132904_Hack_Database"
 });
 
+con.connect(function(err) {
+  if (err) {
+    return callback(err); 
+  }
+  console.log("SQL DB Connected!")
+});
 
-function pullSession(){
+function pullSession(callback) { 
   // connect to db
-  con.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
-  });
+  //con.connect(function(err) {
+  //  if (err) {
+  //    return callback(err); 
+  //  }
+    //console.log("Connected for session ID!");
 
-  
+    const sql = "SELECT MAX(orderNumber) AS latestOrderNumber FROM `Order`";
 
-}
+    con.query(sql, function (err, result) {
+      if (err) {
+        return callback(err); 
+      }
+      console.log("Retrieved session ID: " + result[0].latestOrderNumber);
+      callback(null, result[0].latestOrderNumber); 
+    });
+};
+
+
 
 function insertFood(orderNumber,imageNumber,foodName,expDate , ) {
   // Connect to the database
-  con.connect(function(err) {
-    if (err) {
-      return callback(err); // Pass error to the callback
-    }
-    console.log("Connected!");
+  //con.connect(function(err) {
+  //  if (err) {
+  //    return callback(err); // Pass error to the callback
+  //  }
+  //  console.log("Connected!");
 
     // Prepare the SQL query
     const sql = "INSERT INTO Food (orderNumber, imageNumber, foodName, expDate) VALUES (?,?,?, ?)";
@@ -39,8 +57,8 @@ function insertFood(orderNumber,imageNumber,foodName,expDate , ) {
       console.log("1 record inserted");
       callback(null, result); // Pass result to the callback
     });
-  });
-}
+  };
+
 
 
 
@@ -55,19 +73,31 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+
 wss.on('connection', (ws) => {
-  console.log('Connected 1 ');
+  ws.send(JSON.stringify({type: 'test', message: 'Server connected.'}))
 
-  // Optionally, you can set up event handlers for the WebSocket connection
-        const parsedMessage = JSON.parse(message);
-        console.log('Received message:', parsedMessage);
 
-  ws.on('close', () => {
-    console.log('Connection closed');
+  pullSession(function(err, latestOrderNumber) {
+    if (err) {
+      console.error('Error:', err);
+    } else {
+      console.log('Last Order Number:', latestOrderNumber);
+    }
   });
 
-  // Optionally, you can send a message to the client
-  ws.send(JSON.stringify({type: 'start', message: 'Connected' }));
+
+  ws.on('message', (message) => {
+      try {
+          const parsedMessage = JSON.parse(message);
+          console.log('Received:', parsedMessage);
+          // Handle the parsed message
+      } catch (error) {
+          console.error('Invalid JSON:', message);
+          // Optionally send an error message back to the client
+          ws.send(JSON.stringify({ error: 'Invalid JSON format' }));
+      }
+  });
 });
 
 const port = 3000;
@@ -77,13 +107,12 @@ server.listen(port, () => {
 // END WEBSOCKET 
 
 ////////// API CALLS
-
 const PAT = '095a52b8d68a49a9bc38a58fd282075a';
 const USER_ID = 'clarifai';       
 const APP_ID = 'main';
 const MODEL_ID = 'food-item-recognition';
 const MODEL_VERSION_ID = '1d5fd481e0cf4826aa72ec3ff049e044';    
-const IMAGE_URL = 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcT8AS3Q4CAzi8xMe5NaAZ_WfjLlioGWzRURdfAWRu-Lprqex2xf';
+const IMAGE_URL = 'https://i.imgur.com/OJxxLlv.jpeg';
 
 const raw = JSON.stringify({
     "user_app_id": {
