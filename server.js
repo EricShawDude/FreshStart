@@ -7,10 +7,6 @@ var con = mysql.createConnection({
   password: "tNqe4!avJmtVc6IzFk4xd!O9"
 });
 
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected!");
-});
 
 function pullSession(){
   // connect to db
