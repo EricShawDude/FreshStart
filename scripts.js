@@ -1,4 +1,38 @@
-const fs = require('fs');
+
+
+const socket = new WebSocket('ws://localhost:3000');
+socket.onmessage = handleServerMessage;
+
+
+function sendMessageToServer(message) {
+    socket.send(message);
+}
+
+
+function handleServerMessage(event) {
+  const message = JSON.parse(event.data);
+
+  switch (message.type) {
+      case 'start': // Starts the game 
+          console.log(message.message);
+          break;
+      
+      case 'victory':// If the player receives a victory message
+          canvas.removeEventListener('click', handleCanvasClick);
+          console.log(`Player wins! ${message}`);
+          const defeat = { type: 'defeat' } // Send indiciation that other side has lost to other player
+          sendMessageToServer(JSON.stringify(defeat));
+          alert("You win!");
+          break;
+
+      case 'defeat':// If the player receives a defeat message
+          canvas.removeEventListener('click', handleCanvasClick);
+          console.log(`You lose! ${message}`);
+          alert("You Lose!");
+          break;
+
+  }
+}
 
 function takepicture() {
   var width = document.getElementById('vid').offsetWidth;
@@ -12,26 +46,64 @@ function takepicture() {
     canvas.height = height;
     context.drawImage(vid, 0, 0, width, height);
 
-    const data = canvas.toDataURL("image/png");
+    const data = canvas.toDataURL("image/jpeg");
     console.log(data);
-
-    writeImage(data, "C:/Github/ScammerJammerTest/Hackashaw/images")
+    file = dataURLToFile(data, "image.png");
+    link = uploadImage(file);
+    console.log(link.toString())
+    console.log("LINK !!!!")
+    return link;
   } 
 }
 
-function writeImage(dataUrl, filePath) {
+function dataURLToFile(dataURL, filename) {
+  // Split the data URL into the content type and the base64 data
+  const [header, base64Data] = dataURL.split(',');
+  const mimeType = header.match(/:(.*?);/)[1];
+  const byteString = atob(base64Data);
+
+  // Convert the base64 string to an array of bytes
+  const arrayBuffer = new ArrayBuffer(byteString.length);
+  const uint8Array = new Uint8Array(arrayBuffer);
+
+  for (let i = 0; i < byteString.length; i++) {
+      uint8Array[i] = byteString.charCodeAt(i);
+  }
+
+  // Create a Blob from the byte array and mime type
+  const blob = new Blob([uint8Array], { type: mimeType });
+
+  // Convert Blob to File if needed
+  const file = new File([blob], filename, { type: mimeType });
+
+  return file;
+}
+
+async function uploadImage(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
   try {
-      // Extract the base64 data part from the data URL
-      const base64Data = dataUrl.split(',')[1];
+      const response = await fetch('https://api.imgur.com/3/image', {
+          method: 'POST',
+          headers: {
+              'Authorization': 'Client-ID 1d706103fe31284'
+          },
+          body: formData
+      });
 
-      // Decode the base64 data into a buffer
-      const buffer = Buffer.from(base64Data, 'base64');
+      const data = await response.json();
+      console.log('Full API Response:', data);  // Log the full response to inspect it
 
-      // Write the buffer to the specified file path
-      fs.writeFileSync(filePath, buffer);
-
-      console.log('Image saved successfully to', filePath);
+      if (data.success) {
+          console.log('Image uploaded:', data.data.link);
+          return data.data.link;
+      } else {
+          console.error('Upload failed:', data.data.error);
+      }
   } catch (error) {
-      console.error('Error saving image:', error);
+      console.error('Error uploading image:', error);
   }
 }
+
+
