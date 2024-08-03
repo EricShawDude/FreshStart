@@ -14,18 +14,16 @@ function takepicture() {
     canvas = document.getElementById('canvas')
     const context = canvas.getContext("2d");
     if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
-      context.drawImage(vid, 0, 0, width, height);
-  
-      const data = canvas.toDataURL("image/png");
-      photo.setAttribute("src", data);
-      console.log(data);
-    } 
-  }
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(vid, 0, 0, width, height);
 
-/// REMOVE THIS
-  function playerMove(x, y) {
+        const data = canvas.toDataURL("image/png");
+        photo.setAttribute("src", data);
+        console.log(data);
+    }
+}
+function playerMove(x, y) {
     if (playerBoard[y][x] === 0) {
         playerBoard[y][x] = 3; // Mark as miss
         drawBoards();
@@ -35,18 +33,16 @@ function takepicture() {
         if (checkGameOver(playerShips, playerBoard)) {
             alert("You lose!");
             canvas.removeEventListener('click', handleCanvasClick);
-            const gameOver = {type: 'victory'};
+            const gameOver = { type: 'victory' };
             sendMessageToServer(JSON.stringify(gameOver)); // send gameover message to server indicating that this player has lost
         }
     }
     const isHit = playerBoard[y][x]
-    const response = { type: 'response', message: isHit, x: x, y: y}; // Send response back to server with whether the shot was a hit or miss and the coordinates corresponding
+    const response = { type: 'response', message: isHit, x: x, y: y }; // Send response back to server with whether the shot was a hit or miss and the coordinates corresponding
     console.log(`${isHit}, Coords: ${x}, ${y}`)
     sendMessageToServer(JSON.stringify(response));
     isPlayerTurn = false; // Change turns
 }
-// REMOVE ABOVE
-
 
 function handleServerMessage(event) {
     const message = JSON.parse(event.data);
@@ -74,4 +70,32 @@ function handleServerMessage(event) {
             break;
 
     }
+}
+
+//Slideshow Gallery 
+let slideIndex = 1;
+showSlides(slideIndex);
+
+function plusSlides(n) {
+  showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  let i;
+  let slides = document.getElementsByClassName("mySlides");
+  let dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}    
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";  
+  }
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";  
+  dots[slideIndex-1].className += " active";
 }
