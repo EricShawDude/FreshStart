@@ -23,6 +23,8 @@ function takepicture() {
       console.log(data);
     } 
   }
+
+/// REMOVE THIS
   function playerMove(x, y) {
     if (playerBoard[y][x] === 0) {
         playerBoard[y][x] = 3; // Mark as miss
@@ -43,6 +45,8 @@ function takepicture() {
     sendMessageToServer(JSON.stringify(response));
     isPlayerTurn = false; // Change turns
 }
+// REMOVE ABOVE
+
 
 function handleServerMessage(event) {
     const message = JSON.parse(event.data);
