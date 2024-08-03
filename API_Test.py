@@ -18,7 +18,7 @@ from clarifai.client.model import Model
 model_url = (
     "https://clarifai.com/clarifai/main/models/food-item-recognition"
 )
-image_url = "https://ca-times.brightspotcdn.com/dims4/default/54847e8/2147483647/strip/true/crop/2048x1280+0+43/resize/1200x750!/quality/75/?url=https%3A%2F%2Fcalifornia-times-brightspot.s3.amazonaws.com%2Fb2%2Fa5%2Fd673ffac73e3ff63f2f3c095fde9%2Fhomemade-american-cheese-recipes-db"
+image_url = "https://media.discordapp.net/attachments/1100491665854185556/1269300833565282324/IMG_3746.jpg?ex=66af9005&is=66ae3e85&hm=24ac1f2e475654c9664b1f299e07bf20173ea6ef314a1d4c33ac4db3307e25d4&=&format=webp&width=496&height=662"
 
 # The Predict API also accepts data through URL, Filepath & Bytes.
 # Example for predict by filepath:
