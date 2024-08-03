@@ -7,7 +7,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-  console.log('Connected');
+  console.log('Connected 1 ');
 
   // Optionally, you can set up event handlers for the WebSocket connection
   ws.on('message', (message) => {
