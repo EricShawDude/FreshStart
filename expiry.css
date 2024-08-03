@@ -21,3 +21,57 @@
     background-color: #5d824c;
     color: rgb(255, 255, 255);
 }
+
+/* Slideshow Container */
+.slideshow-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.slide {
+    display: flex;
+    width: 100%;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.slide-text {
+    padding: 20px;
+    max-width: 50%;
+}
+
+.arrow {
+    position: absolute;
+    top: 50%;
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 24px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}
