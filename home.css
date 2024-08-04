@@ -1,3 +1,5 @@
+
+
 .topnav {
     background-color: #85AF71;
     overflow: hidden;
@@ -29,10 +31,14 @@
 /* Business Solution Boxes */
 
 /* Slideshow Container */
+
 * {box-sizing: border-box}
-body {font-family: Georgia, serif; margin:0}
+body {
+    font-family: 'Montserrat', sans-serif; margin:0
+}
 .mySlides {display: none}
 img {vertical-align: middle;}
+
 
 .slideshow-container {
   max-width: 1000px;
