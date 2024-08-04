@@ -126,4 +126,27 @@
         </div>
 </body>
 
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        let cambutton = document.getElementById("cambutton");
+        let video = document.getElementById("vid");
+        let mediaDevices = navigator.mediaDevices;
+        vid.muted = true;
+        cambutton.addEventListener("click", () => {
+            mediaDevices
+                .getUserMedia({
+                    video: true,
+                    audio: true,
+                })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    video.addEventListener("loadedmetadata", () => {
+                        video.play();
+                    });
+                })
+                .catch(alert);
+        });
+    });
+</script>
+
 </html>
