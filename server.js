@@ -94,7 +94,7 @@ async function fetchOrderFoodNames() {
 const { OpenAI } = require('openai');
 
 
-const openai = new OpenAI({ apiKey: '' });
+const openai = new OpenAI({ apiKey: 'sk-nj-BBJ9HhPT76iK4jvDMN7WEaSSqrRDiJTK9k_f2QUT3BlbkFJNb89loFYfoL812Zi83YByCSHI55_fJdLvdAkWMi2oA' });
 
 async function getRecipeRecommendation(foodNames) {
   const prompt = `Based on the following ingredients, recommend a recipe. Try to use as little ingredients as possible on top of what's provided. Only provide the recipe: ${foodNames.join(', ')}.`;
@@ -115,7 +115,7 @@ async function getRecipeRecommendation(foodNames) {
 }
 
 async function getLifespan(foodNames) {
-  const prompt = `Provide the average lifespan of the following food: ${foodNames}.`;
+  const prompt = `Provide the average lifespan of the following food: ${foodNames}. Format properly. As well, provide a storage method that is a one or two sentences long.`;
 
   try {
       const response = await openai.chat.completions.create({
@@ -126,7 +126,7 @@ async function getLifespan(foodNames) {
       // Extract the recommended recipe from the response
       const lifespan = response.choices[0].message.content;
       console.log('Lifespan:', lifespan);
-      return recipe;
+      return lifespan;
   } catch (error) {
       console.error('Error generating recipe:', error);
   }

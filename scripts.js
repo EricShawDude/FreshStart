@@ -180,7 +180,7 @@ function updateRecipeContent(recipeMessage) {
 
 function updateLifespan(lifespanMessage) {
   element = document.getElementById('lifespan');
-  helpImageDiv.innerHTML = `<p>Lifespan: ${lifespanMessage}</p>`;
+  element.innerHTML = `<p>Lifespan: ${lifespanMessage}</p>`;
 
 };
 
