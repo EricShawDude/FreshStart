@@ -1,128 +1,176 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" 
-          content="width=device-width, initial-scale=1.0">
-        <title>FreshTrack</title>
-        <link rel="stylesheet" type="text/css" href="recipe.css">
-        <script src = "scripts.js" defer></script>     
 
-        <!--style adam added for .cam and .buttons class. feel free to change .cam and .buttons as well as the others to anything, just make
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshTrack</title>
+    <link rel="stylesheet" type="text/css" href="recipe.css">
+    <script src="scripts.js" defer></script>
+
+    <!--style adam added for .cam and .buttons class. feel free to change .cam and .buttons as well as the others to anything, just make
         sure to format properly and to your liking-->
-        
-        <style>
-            
-          .cam {
-              width: 1004px;
-              height: 400px;
-              border: 2px solid black;
-              position: relative;
-          }
-  
-          .buttons{
-              width: 400px;
-              height: 200px;
-              position: relative;
-          }
-  
-          video {
-              width: 500px;
-              height: 400px;
-              object-fit: fill;
-          }
-  
-          canvas {
-              width: 500px;
-              height: 400px;
-              object-fit: fill;
-          }
-      </style>
-    </head>
-    <body>
-        <div class="topnav">
-            <a href="expiry.html">Expiry Tracker</a>
-            <a href="donations.html">Donations</a>
-            <a class="active" href="recipe.html">Recipes</a>
-            <a href="home.html">Home</a>
-            <h2 class="session">text here</h2> <!--CHANGE TEXT HERE-->
+
+    <style>
+        /* .cam {
+            width: 1004px;
+            height: 400px;
+            border: 0px solid rgb(79, 79, 79);
+            text-align: right;
+            position: relative;
+            margin-left: 50px;
+        }
+
+        .buttons-container {
+            width: 67.5%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .buttons #cambutton, .buttons #picbutton {
+            background-color: #85AF71;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 4px 10px;
+            border-radius: 20px;
+            position: relative;
+            text-align: right;
+        }
+
+        video {
+            width: 500px;
+            height: 400px;
+            object-fit: fill;
+        }
+
+        canvas {
+            object-fit: fill;
+        } */
+
+        .container {
+            display: flex;
+            width: 90%;
+        }
+
+        .left-side, .right-side {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .left-side {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-left: 200px;
+        }
+
+        .right-side {
+            text-align:center;
+            margin-right: 100px;
+        }
+
+        .right-side #foods {
+            text-align: center;
+        }
+
+        .cam {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #vid, #canvas {
+            width: 320px;
+            height: 240px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .buttons-container {
+            width: 67.5%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .buttons #cambutton, .buttons #picbutton {
+            background-color: #85AF71;
+            border: none;
+            color: white;
+            padding: 15px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 0px 10px;
+            border-radius: 20px;
+            position: relative;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topnav">
+        <a href="expiry.html">Expiry Tracker</a>
+        <a href="donations.html">Donations</a>
+        <a class="active" href="recipe.html">Recipes</a>
+        <a href="home.html">Home</a>
+        <h2 class="session">text here</h2> <!--CHANGE TEXT HERE-->
+    </div>
+
+    <div style="text-align: center; font-size: 30px;">
+        <h2>Recipes</h2>
+    </div>
+
+    <!-- Slideshow container -->
+
+    <div class="container">
+        <div class="left-side">
+            <div class="cam">
+                <video id="vid" autoplay></video>
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="buttons-container buttons">
+                <button id="cambutton">Open Camera</button>
+                <button id="picbutton" onclick="takepicture()">Take Photo</button>
+            </div>
         </div>
 
-        <div style="text-align: center; font-size: 30px;">
-            <h2>Recipes</h2>
+        <div class="right-side">
+            <h2><u>List of Foods</u></h2>
+            <div id="foods">
+                <p>oaisjdasidjao</p>
+            </div>
         </div>
 
-        <!-- Slideshow container -->
-        <div class="slideshow-container">
+</body>
 
-            <div class="mySlides fade">
-              <div class="numbertext">1 / 3</div>
-              <img src="images/food.png" style="width:100%">
-              <div class="text">Caption Text</div>
-            </div>
-            
-            <div class="mySlides fade">
-              <div class="numbertext">2 / 3</div>
-              <img src="images/gumball.png" style="width:100%">
-              <div class="text">Caption Two</div>
-            </div>
-            
-            <div class="mySlides fade">
-              <div class="numbertext">3 / 3</div>
-              <img src="images/placeholder.png" style="width:100%">
-              <div class="text">Caption Three</div>
-            </div>
-            
-            <a class="prev" onclick="plusSlides(-1)">❮</a>
-            <a class="next" onclick="plusSlides(1)">❯</a>
-            
-            </div>
-            <br>
-            
-            <div style="text-align:center">
-              <span class="dot" onclick="currentSlide(1)"></span> 
-              <span class="dot" onclick="currentSlide(2)"></span> 
-              <span class="dot" onclick="currentSlide(3)"></span> 
-            </div>
-        
-    <!--div for camera/canvas-->
-      <div class = "cam">
-        <!--video-->
-          <video id = "vid"></video>
-          <!--canvas-->
-          <canvas id ="canvas"> </canvas>
-      </div>
-      <br>
-      <!--buttons, you can change class but DO NOT change id or onclick-->
-      <div class = "buttons">
-      <button id ="cambutton" autoplay>Open Camera</button>
-      <button onclick="takepicture()">Take Photo</button>
-      </div>
-  
-  </body>
-  
-  <script>
-      document.addEventListener("DOMContentLoaded", () => {
-          let cambutton = document.getElementById("cambutton");
-          let video = document.getElementById("vid");
-          let mediaDevices = navigator.mediaDevices;
-          vid.muted = true;
-          cambutton.addEventListener("click", () => {
-              mediaDevices
-                  .getUserMedia({
-                      video: true,
-                      audio: true,
-                  })
-                  .then((stream) => {
-                      video.srcObject = stream;
-                      video.addEventListener("loadedmetadata", () => {
-                          video.play();
-                      });
-                  })
-                  .catch(alert);
-          });
-      });
-  </script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        let cambutton = document.getElementById("cambutton");
+        let video = document.getElementById("vid");
+        let mediaDevices = navigator.mediaDevices;
+        vid.muted = true;
+        cambutton.addEventListener("click", () => {
+            mediaDevices
+                .getUserMedia({
+                    video: true,
+                    audio: true,
+                })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    video.addEventListener("loadedmetadata", () => {
+                        video.play();
+                    });
+                })
+                .catch(alert);
+        });
+    });
+</script>
 
 
 </html>
