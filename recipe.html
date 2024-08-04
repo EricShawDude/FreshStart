@@ -60,17 +60,27 @@
 
         .buttons #cambutton,
         .buttons #picbutton {
-            background-color: #85AF71;
-            border: none;
-            color: white;
-            padding: 15px 20px;
-            text-decoration: none;
-            font-size: 16px;
-            margin: 0px 10px;
-            border-radius: 20px;
-            position: relative;
+            padding: 15px 10px;
+            font-size: 24px;
             text-align: center;
             cursor: pointer;
+            outline: none;
+            color: #fff;
+            background-color: #85AF71;
+            border: none;
+            border-radius: 17px;
+            box-shadow: 0 9px #999;
+            margin-left: 5px;
+        }
+
+        .buttons #cambutton:hover, .buttons #picbutton:hover {
+            background-color: #668e54;
+        }
+
+        .buttons #cambutton:active, .buttons #picbutton:active {
+            background-color: #668e54;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
         }
     </style>
 </head>
@@ -90,12 +100,14 @@
 
     <!-- Slideshow container -->
     <div style="font-size: 25px; margin-left: 170px;">
-        <u><h3>How To Get Started</h3></u>
+        <u>
+            <h3>How To Get Started</h3>
+        </u>
     </div>
 
-     <div style="text-align: center; margin-bottom: 20px;">
+    <div style="text-align: center; margin-bottom: 20px;">
         <img src="images/recipes steps.png">
-     </div>
+    </div>
 
     <!--Cam and buttons-->
     <div class="container">
