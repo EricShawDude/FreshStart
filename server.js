@@ -30,7 +30,6 @@ function pullSession(callback) {
       if (err) {
         return callback(err); 
       }
-      console.log("Retrieved session ID: " + result[0].latestOrderNumber);
       callback(null, result[0].latestOrderNumber); 
     });
 };
@@ -75,10 +74,8 @@ const wss = new WebSocket.Server({ server });
 
 
 wss.on('connection', (ws) => {
-  ws.send(JSON.stringify({type: 'test', message: 'Server connected.'}))
 
-
-  pullSession(function(err, latestOrderNumber) {
+  var sessionID = pullSession(function(err, latestOrderNumber) {
     if (err) {
       console.error('Error:', err);
     } else {
@@ -86,17 +83,41 @@ wss.on('connection', (ws) => {
     }
   });
 
+  ws.send(JSON.stringify({type: 'test', message: 'Server connected.', session: sessionID}))
+  console.log('Sesh' , sessionID);
+
+
 
   ws.on('message', (message) => {
-      try {
-          const parsedMessage = JSON.parse(message);
-          console.log('Received:', parsedMessage);
-          // Handle the parsed message
-      } catch (error) {
-          console.error('Invalid JSON:', message);
-          // Optionally send an error message back to the client
-          ws.send(JSON.stringify({ error: 'Invalid JSON format' }));
-      }
+    try {
+        const parsedMessage = JSON.parse(message);
+        console.log('Received:', parsedMessage);
+
+        // Handle the parsed message based on a specific field
+        switch (parsedMessage.type) {
+            case 'update':
+                // Handle update message
+                handleUpdate(parsedMessage.data);
+                break;
+            case 'delete':
+                // Handle delete message
+                handleDelete(parsedMessage.data);
+                break;
+            case 'create':
+                // Handle create message
+                handleCreate(parsedMessage.data);
+                break;
+            default:
+                // Handle unknown message types
+                console.warn('Unknown message type:', parsedMessage.type);
+                ws.send(JSON.stringify({ error: 'Unknown message type' }));
+                break;
+        }
+    } catch (error) {
+        console.error('Invalid JSON:', message);
+        // Optionally send an error message back to the client
+        ws.send(JSON.stringify({ error: 'Invalid JSON format' }));
+    }
   });
 });
 
@@ -107,52 +128,54 @@ server.listen(port, () => {
 // END WEBSOCKET 
 
 ////////// API CALLS
-const PAT = '095a52b8d68a49a9bc38a58fd282075a';
-const USER_ID = 'clarifai';       
-const APP_ID = 'main';
-const MODEL_ID = 'food-item-recognition';
-const MODEL_VERSION_ID = '1d5fd481e0cf4826aa72ec3ff049e044';    
-const IMAGE_URL = 'https://i.imgur.com/OJxxLlv.jpeg';
+//const PAT = '095a52b8d68a49a9bc38a58fd282075a';
+//const USER_ID = 'clarifai';       
+//const APP_ID = 'main';
+//const MODEL_ID = 'food-item-recognition';
+//const MODEL_VERSION_ID = '1d5fd481e0cf4826aa72ec3ff049e044';    
+//const IMAGE_URL = 'https://i.imgur.com/OJxxLlv.jpeg';
+//
+//const raw = JSON.stringify({
+//    "user_app_id": {
+//        "user_id": USER_ID,
+//        "app_id": APP_ID
+//    },
+//    "inputs": [
+//        {
+//            "data": {
+//                "image": {
+//                    "url": IMAGE_URL
+//                }
+//            }
+//        }
+//    ]
+//});
+//
+//const requestOptions = {
+//    method: 'POST',
+//    headers: {
+//        'Accept': 'application/json',
+//        'Authorization': 'Key ' + PAT
+//    },
+//    body: raw
+//};
+//
+//fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
+//    .then(response => response.json())
+//    .then(result => {
+//        // Extract concepts array
+//        const concepts = result.outputs[0].data.concepts;
+//
+//        // Find the concept with the highest confidence
+//        const highestConfidence = concepts.reduce((max, concept) => concept.value > max.value ? concept : max, concepts[0]);
+//
+//        // Extract the name of the concept with the highest confidence
+//        const highestConfidenceName = highestConfidence.name;
+//
+//        // Output the name of the concept with the highest confidence
+//        console.log(highestConfidenceName);
+//    })
+//    .catch(error => console.log('error', error));
 
-const raw = JSON.stringify({
-    "user_app_id": {
-        "user_id": USER_ID,
-        "app_id": APP_ID
-    },
-    "inputs": [
-        {
-            "data": {
-                "image": {
-                    "url": IMAGE_URL
-                }
-            }
-        }
-    ]
-});
-
-const requestOptions = {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Key ' + PAT
-    },
-    body: raw
-};
-
-fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
-    .then(response => response.json())
-    .then(result => {
-        // Extract concepts array
-        const concepts = result.outputs[0].data.concepts;
-
-        // Find the concept with the highest confidence
-        const highestConfidence = concepts.reduce((max, concept) => concept.value > max.value ? concept : max, concepts[0]);
-
-        // Extract the name of the concept with the highest confidence
-        const highestConfidenceName = highestConfidence.name;
-
-        // Output the name of the concept with the highest confidence
-        console.log(highestConfidenceName);
-    })
-    .catch(error => console.log('error', error));
+////// END API CALL
 
