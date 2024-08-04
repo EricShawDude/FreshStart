@@ -6,9 +6,13 @@
           content="width=device-width, initial-scale=1.0">
         <title>FreshTrack</title>
         <link rel="stylesheet" type="text/css" href="recipe.css">
-        <script src = scripts.js></script>     
+        <script src = "scripts.js" defer></script>     
+
+        <!--style adam added for .cam and .buttons class. feel free to change .cam and .buttons as well as the others to anything, just make
+        sure to format properly and to your liking-->
         
         <style>
+            
           .cam {
               width: 1004px;
               height: 400px;
@@ -28,7 +32,7 @@
               object-fit: fill;
           }
   
-          .canvas2 {
+          canvas {
               width: 500px;
               height: 400px;
               object-fit: fill;
@@ -80,17 +84,19 @@
               <span class="dot" onclick="currentSlide(2)"></span> 
               <span class="dot" onclick="currentSlide(3)"></span> 
             </div>
-    </body>
-
-    <body>
+        
+    <!--div for camera/canvas-->
       <div class = "cam">
+        <!--video-->
           <video id = "vid"></video>
-          <canvas class = "canvas2", id="canvas"> </canvas>
+          <!--canvas-->
+          <canvas id ="canvas"> </canvas>
       </div>
       <br>
+      <!--buttons, you can change class but DO NOT change id or onclick-->
       <div class = "buttons">
+      <button id ="cambutton" autoplay>Open Camera</button>
       <button onclick="takepicture()">Take Photo</button>
-      <button id="cambutton" autoplay>Open Camera</button>
       </div>
   
   </body>

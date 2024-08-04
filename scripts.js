@@ -6,23 +6,8 @@ function sendMessageToServer(message) {
     socket.send(message);
 }
 
-function takepicture() {
-    var width = document.getElementById('vid').offsetWidth;
-    var height = document.getElementById('vid').offsetHeight;
-    console.log(width);
-    console.log(height);
-    canvas = document.getElementById('canvas')
-    const context = canvas.getContext("2d");
-    if (width && height) {
-        canvas.width = width;
-        canvas.height = height;
-        context.drawImage(vid, 0, 0, width, height);
+const fs = require('fs');
 
-        const data = canvas.toDataURL("image/png");
-        photo.setAttribute("src", data);
-        console.log(data);
-    }
-}
 function playerMove(x, y) {
     if (playerBoard[y][x] === 0) {
         playerBoard[y][x] = 3; // Mark as miss
@@ -72,70 +57,8 @@ function handleServerMessage(event) {
     }
 }
 
-//Slideshow Gallery 
-let slideIndex = 1;
-showSlides(slideIndex);
 
-function plusSlides(n) {
-  showSlides(slideIndex += n);
-}
-
-function currentSlide(n) {
-  showSlides(slideIndex = n);
-}
-
-function showSlides(n) {
-  let i;
-  let slides = document.getElementsByClassName("mySlides");
-  let dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1}    
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";  
-  }
-  for (i = 0; i < dots.length; i++) {
-    dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";  
-  dots[slideIndex-1].className += " active";
-}
-<<<<<<< Updated upstream
-=======
-
-/// IMAGE TAKER
-const fs = require('fs');
-
-const socket = new WebSocket('ws://localhost:3000');
-socket.onmessage = handleServerMessage;
-
-function sendMessageToServer(message) {
-    socket.send(message);
-}
-
-function handleServerMessage(event) {
-  const message = JSON.parse(event.data);
-
-  switch (message.type) {
-      case 'start': // Starts the game 
-          console.log(message.message);
-          break;
-      
-      case 'victory':// If the player receives a victory message
-          canvas.removeEventListener('click', handleCanvasClick);
-          console.log(`Player wins! ${message}`);
-          const defeat = { type: 'defeat' } // Send indiciation that other side has lost to other player
-          sendMessageToServer(JSON.stringify(defeat));
-          alert("You win!");
-          break;
-
-      case 'defeat':// If the player receives a defeat message
-          canvas.removeEventListener('click', handleCanvasClick);
-          console.log(`You lose! ${message}`);
-          alert("You Lose!");
-          break;
-
-  }
-}
+// IMAGE TAKER 
 
 function takepicture() {
   var width = document.getElementById('vid').offsetWidth;
@@ -209,6 +132,61 @@ async function uploadImage(file) {
   }
 }
 
+//Slideshow Gallery 
+let slideIndex = 1;
+showSlides(slideIndex);
+
+function plusSlides(n) {
+  showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  let i;
+  let slides = document.getElementsByClassName("mySlides");
+  let dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}    
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";  
+  }
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";  
+  dots[slideIndex-1].className += " active";
+}
+
+function handleServerMessage(event) {
+  const message = JSON.parse(event.data);
+
+  switch (message.type) {
+      case 'start': // Starts the game 
+          console.log(message.message);
+          break;
+      
+      case 'victory':// If the player receives a victory message
+          canvas.removeEventListener('click', handleCanvasClick);
+          console.log(`Player wins! ${message}`);
+          const defeat = { type: 'defeat' } // Send indiciation that other side has lost to other player
+          sendMessageToServer(JSON.stringify(defeat));
+          alert("You win!");
+          break;
+
+      case 'defeat':// If the player receives a defeat message
+          canvas.removeEventListener('click', handleCanvasClick);
+          console.log(`You lose! ${message}`);
+          alert("You Lose!");
+          break;
+
+  }
+}
+
+
+
 
 //// helper func
 /// START HELPER FUNCTION
@@ -224,4 +202,3 @@ function changeSessionID(newText) {
       console.error('Element with class "session" not found.');
     }
   }
->>>>>>> Stashed changes
