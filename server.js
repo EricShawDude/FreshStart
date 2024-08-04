@@ -94,7 +94,7 @@ async function fetchOrderFoodNames() {
 const { OpenAI } = require('openai');
 
 
-const openai = new OpenAI({ apiKey: 'sk-nj-BBJ9HhPT76iK4jvDMN7WEaSSqrRDiJTK9k_f2QUT3BlbkFJNb89loFYfoL812Zi83YByCSHI55_fJdLvdAkWMi2oA' });
+const openai = new OpenAI({ apiKey: '' });
 
 async function getRecipeRecommendation(foodNames) {
   const prompt = `Based on the following ingredients, recommend a recipe. Try to use as little ingredients as possible on top of what's provided. Only provide the recipe: ${foodNames.join(', ')}.`;
