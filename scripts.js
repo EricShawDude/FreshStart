@@ -24,6 +24,13 @@ function handleServerMessage(event) {
       case 'recipe':
             updateRecipeContent(message.message);
             break;
+      case 'lifespan':
+        updateLifespan(message.message);
+        break;
+      case 'storage':
+        updateStorage(message.message);
+        break;
+
       default:
           console.log('Unknown message type:', message.type);
   }
@@ -170,5 +177,11 @@ function updateRecipeContent(recipeMessage) {
       console.error('Div with id "helpImageR2" not found.');
   }
 }
+
+function updateLifespan(lifespanMessage) {
+  element = document.getElementById('lifespan');
+  helpImageDiv.innerHTML = `<p>Lifespan: ${lifespanMessage}</p>`;
+
+};
 
 

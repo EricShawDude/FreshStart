@@ -114,7 +114,23 @@ async function getRecipeRecommendation(foodNames) {
   }
 }
 
+async function getLifespan(foodNames) {
+  const prompt = `Provide the average lifespan of the following food: ${foodNames}.`;
 
+  try {
+      const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini", 
+          messages: [{ role: 'user', content: prompt }],
+      });
+
+      // Extract the recommended recipe from the response
+      const lifespan = response.choices[0].message.content;
+      console.log('Lifespan:', lifespan);
+      return recipe;
+  } catch (error) {
+      console.error('Error generating recipe:', error);
+  }
+}
 
 
 
@@ -155,6 +171,10 @@ wss.on('connection', (ws) => {
                 const recipe = await getRecipeRecommendation(foodData);
 
                 ws.send(JSON.stringify({type: 'recipe', message: recipe}));
+
+                const lifespan = await getLifespan(highestConfidenceConcept);
+
+                ws.send(JSON.stringify({type: 'lifespan', message: lifespan}));
 
                 break;
                 
