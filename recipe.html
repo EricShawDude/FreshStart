@@ -1,9 +1,39 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0">
         <title>FreshTrack</title>
         <link rel="stylesheet" type="text/css" href="recipe.css">
-        <script src = scripts.js></script>                       
+        <script src = scripts.js></script>     
+        
+        <style>
+          .cam {
+              width: 1004px;
+              height: 400px;
+              border: 2px solid black;
+              position: relative;
+          }
+  
+          .buttons{
+              width: 400px;
+              height: 200px;
+              position: relative;
+          }
+  
+          video {
+              width: 500px;
+              height: 400px;
+              object-fit: fill;
+          }
+  
+          .canvas2 {
+              width: 500px;
+              height: 400px;
+              object-fit: fill;
+          }
+      </style>
     </head>
     <body>
         <div class="topnav">
@@ -51,4 +81,42 @@
               <span class="dot" onclick="currentSlide(3)"></span> 
             </div>
     </body>
+
+    <body>
+      <div class = "cam">
+          <video id = "vid"></video>
+          <canvas class = "canvas2", id="canvas"> </canvas>
+      </div>
+      <br>
+      <div class = "buttons">
+      <button onclick="takepicture()">Take Photo</button>
+      <button id="cambutton" autoplay>Open Camera</button>
+      </div>
+  
+  </body>
+  
+  <script>
+      document.addEventListener("DOMContentLoaded", () => {
+          let cambutton = document.getElementById("cambutton");
+          let video = document.getElementById("vid");
+          let mediaDevices = navigator.mediaDevices;
+          vid.muted = true;
+          cambutton.addEventListener("click", () => {
+              mediaDevices
+                  .getUserMedia({
+                      video: true,
+                      audio: true,
+                  })
+                  .then((stream) => {
+                      video.srcObject = stream;
+                      video.addEventListener("loadedmetadata", () => {
+                          video.play();
+                      });
+                  })
+                  .catch(alert);
+          });
+      });
+  </script>
+
+
 </html>
