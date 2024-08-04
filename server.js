@@ -16,54 +16,112 @@ con.connect(function(err) {
   console.log("SQL DB Connected!")
 });
 
+let globalNextOrderNumber;
+
 function pullSession(callback) { 
-  // connect to db
-  //con.connect(function(err) {
-  //  if (err) {
-  //    return callback(err); 
-  //  }
-    //console.log("Connected for session ID!");
+  const sql = "SELECT MAX(orderNumber) AS latestOrderNumber FROM `Food`";
 
-    const sql = "SELECT MAX(orderNumber) AS latestOrderNumber FROM `Order`";
+  con.query(sql, (err, result) => {
+    if (err) {
+      return callback(err); 
+    }
+    
+    globalNextOrderNumber = (result[0].latestOrderNumber === null ? 1 : result[0].latestOrderNumber + 1);
+    callback(null, globalNextOrderNumber); 
+  });
+}
 
-    con.query(sql, function (err, result) {
-      if (err) {
-        return callback(err); 
-      }
-      console.log("Retrieved session ID: " + result[0].latestOrderNumber);
-      callback(null, result[0].latestOrderNumber); 
-    });
-};
-
-
-
-function insertFood(orderNumber,imageNumber,foodName,expDate , ) {
-  // Connect to the database
-  //con.connect(function(err) {
-  //  if (err) {
-  //    return callback(err); // Pass error to the callback
-  //  }
-  //  console.log("Connected!");
-
-    // Prepare the SQL query
-    const sql = "INSERT INTO Food (orderNumber, imageNumber, foodName, expDate) VALUES (?,?,?, ?)";
-    const values = [orderNumber,imageNumber,foodName,expDate ];
-
-    // Execute the query
-    con.query(sql, values, function (err, result) {
-      if (err) {
-        return callback(err); // Pass error to the callback
-      }
-      console.log("1 record inserted");
-      callback(null, result); // Pass result to the callback
-    });
-  };
+pullSession((err, nextOrderNumber) => {
+  if (err) {
+    console.error('Error retrieving session ID:', err);
+  } else {
+    globalNextOrderNumber = nextOrderNumber;
+    console.log('Next order number:', globalNextOrderNumber);
+  }
+});
 
 
+function insertFood(orderNumber, foodName) {
+  const sql = "INSERT INTO Food (orderNumber, food) VALUES (?, ?)";
+  const values = [orderNumber, foodName];
+
+  return new Promise((resolve, reject) => {
+      con.query(sql, values, (err, result) => {
+          if (err) {
+              return reject(err); // Reject the promise if there's an error
+          }
+          console.log("1 record inserted with ID:", result.insertId); // Log the auto-incremented ID
+          resolve(result); // Resolve the promise with the result
+      });
+  });
+}
+
+async function getRecordsByOrderNumber(orderNumber) {
+  const sql = "SELECT * FROM Food WHERE orderNumber = ?";
+  const values = [orderNumber];
+
+  return new Promise((resolve, reject) => {
+      con.query(sql, values, (err, results) => {
+          if (err) {
+              return reject(err); // Reject the promise if there's an error
+          }
+          resolve(results); // Resolve the promise with the results
+      });
+  });
+}
+
+
+async function fetchOrderFoodNames() {
+  try {
+      const records = await getRecordsByOrderNumber(globalNextOrderNumber); // Pass the order number you need
+      console.log('Fetched records:', records); // Log the records to check their structure
+      
+      // Extract food names from the records
+      const foodNames = records.map(record => record.food);
+      //console.log('Extracted food names:', foodNames);
+      
+      return foodNames; // Return the array of food names
+  } catch (error) {
+      console.error('Error retrieving food names:', error);
+      return []; // Return an empty array in case of an error
+  }
+}
 
 
 // END DATABASE CONNECTIONS
 
+// OPENAI WRAPPER
+const { OpenAI } = require('openai');
+
+
+const openai = new OpenAI({ apiKey: 'sk-nj-BBJ9HhPT76iK4jvDMN7WEaSSqrRDiJTK9k_f2QUT3BlbkFJNb89loFYfoL812Zi83YByCSHI55_fJdLvdAkWMi2oA' });
+
+async function getRecipeRecommendation(foodNames) {
+  const prompt = `Based on the following ingredients, recommend a recipe. Try to use as little ingredients as possible on top of what's provided. Only provide the recipe: ${foodNames.join(', ')}.`;
+
+  try {
+      const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini", 
+          messages: [{ role: 'user', content: prompt }],
+      });
+
+      // Extract the recommended recipe from the response
+      const recipe = response.choices[0].message.content;
+      console.log('Recommended Recipe:', recipe);
+      return recipe;
+  } catch (error) {
+      console.error('Error generating recipe:', error);
+  }
+}
+
+
+
+
+
+
+
+
+//
 //  WEBSOCKET START
 const express = require('express');
 const http = require('http');
@@ -78,26 +136,40 @@ wss.on('connection', (ws) => {
   ws.send(JSON.stringify({type: 'test', message: 'Server connected.'}))
 
 
-  pullSession(function(err, latestOrderNumber) {
-    if (err) {
-      console.error('Error:', err);
-    } else {
-      console.log('Last Order Number:', latestOrderNumber);
+
+
+  ws.on('message', async (message) => {
+    try {
+        const parsedMessage = JSON.parse(message);
+        console.log('Received:', parsedMessage);
+
+        switch (parsedMessage.type) {
+                
+            case 'link':
+                const highestConfidenceConcept = await getHighestConfidenceConcept(parsedMessage.message);
+                insertFood(globalNextOrderNumber, highestConfidenceConcept);
+                const foodData = await fetchOrderFoodNames();
+
+                ws.send(JSON.stringify({type: 'foodReturn', message: highestConfidenceConcept, dataOut: foodData}));
+
+                const recipe = await getRecipeRecommendation(foodData);
+
+                ws.send(JSON.stringify({type: 'recipe', message: recipe}));
+
+                break;
+                
+            case 'victory': // If the player receives a victory message
+              ws.send(JSON.stringify({type: 'ah', message: 'Server connected.'}))
+              break;
+                
+        }
+
+    } catch (error) {
+        console.error('Invalid JSON:', message);
+        // Optionally send an error message back to the client
+        ws.send(JSON.stringify({ error: 'Invalid JSON format' }));
     }
-  });
-
-
-  ws.on('message', (message) => {
-      try {
-          const parsedMessage = JSON.parse(message);
-          console.log('Received:', parsedMessage);
-          // Handle the parsed message
-      } catch (error) {
-          console.error('Invalid JSON:', message);
-          // Optionally send an error message back to the client
-          ws.send(JSON.stringify({ error: 'Invalid JSON format' }));
-      }
-  });
+});
 });
 
 const port = 3000;
@@ -112,36 +184,37 @@ const USER_ID = 'clarifai';
 const APP_ID = 'main';
 const MODEL_ID = 'food-item-recognition';
 const MODEL_VERSION_ID = '1d5fd481e0cf4826aa72ec3ff049e044';    
-const IMAGE_URL = 'https://i.imgur.com/OJxxLlv.jpeg';
 
-const raw = JSON.stringify({
-    "user_app_id": {
-        "user_id": USER_ID,
-        "app_id": APP_ID
-    },
-    "inputs": [
-        {
-            "data": {
-                "image": {
-                    "url": IMAGE_URL
+async function getHighestConfidenceConcept(imageURL) {
+    const raw = JSON.stringify({
+        "user_app_id": {
+            "user_id": USER_ID,
+            "app_id": APP_ID
+        },
+        "inputs": [
+            {
+                "data": {
+                    "image": {
+                        "url": imageURL
+                    }
                 }
             }
-        }
-    ]
-});
+        ]
+    });
 
-const requestOptions = {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Key ' + PAT
-    },
-    body: raw
-};
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Key ' + PAT
+        },
+        body: raw
+    };
 
-fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
-    .then(response => response.json())
-    .then(result => {
+    try {
+        const response = await fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions);
+        const result = await response.json();
+
         // Extract concepts array
         const concepts = result.outputs[0].data.concepts;
 
@@ -153,6 +226,15 @@ fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VE
 
         // Output the name of the concept with the highest confidence
         console.log(highestConfidenceName);
-    })
-    .catch(error => console.log('error', error));
+
+        return highestConfidenceName;
+    } catch (error) {
+        console.log('error', error);
+        throw error;
+    }
+}
+
+// Example usage
+
+
 

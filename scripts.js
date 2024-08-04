@@ -6,56 +6,29 @@ function sendMessageToServer(message) {
     socket.send(message);
 }
 
-const fs = require('fs');
-
-function playerMove(x, y) {
-    if (playerBoard[y][x] === 0) {
-        playerBoard[y][x] = 3; // Mark as miss
-        drawBoards();
-    } else if (playerBoard[y][x] === 1) {
-        playerBoard[y][x] = 2; // Mark as hit
-        drawBoards();
-        if (checkGameOver(playerShips, playerBoard)) {
-            alert("You lose!");
-            canvas.removeEventListener('click', handleCanvasClick);
-            const gameOver = { type: 'victory' };
-            sendMessageToServer(JSON.stringify(gameOver)); // send gameover message to server indicating that this player has lost
-        }
-    }
-    const isHit = playerBoard[y][x]
-    const response = { type: 'response', message: isHit, x: x, y: y }; // Send response back to server with whether the shot was a hit or miss and the coordinates corresponding
-    console.log(`${isHit}, Coords: ${x}, ${y}`)
-    sendMessageToServer(JSON.stringify(response));
-    isPlayerTurn = false; // Change turns
-}
 
 function handleServerMessage(event) {
-    const message = JSON.parse(event.data);
+  const message = JSON.parse(event.data);
+  console.log('Received message:', message.message);
 
-    switch (message.type) {
-        case 'start': // Starts the game 
-            console.log(message.message);
+  switch (message.type) {
+      case 'start': // Starts the game 
+          console.log('Game started:', message.message);
+          break;
+      case 'test':
+          console.log('Test message:', message.message);
+          break;
+      case 'foodReturn':
+          updateFoodList(message.dataOut);
+          break;
+      case 'recipe':
+            updateRecipeContent(message.message);
             break;
-        case 'test':
-            console.log(message.message)
-            break;
-        
-        case 'victory':// If the player receives a victory message
-            canvas.removeEventListener('click', handleCanvasClick);
-            console.log(`Player wins! ${message}`);
-            const defeat = { type: 'defeat' } // Send indiciation that other side has lost to other player
-            sendMessageToServer(JSON.stringify(defeat));
-            alert("You win!");
-            break;
-
-        case 'defeat':// If the player receives a defeat message
-            canvas.removeEventListener('click', handleCanvasClick);
-            console.log(`You lose! ${message}`);
-            alert("You Lose!");
-            break;
-
-    }
+      default:
+          console.log('Unknown message type:', message.type);
+  }
 }
+
 
 
 // IMAGE TAKER 
@@ -73,11 +46,8 @@ function takepicture() {
     context.drawImage(vid, 0, 0, width, height);
 
     const data = canvas.toDataURL("image/jpeg");
-    console.log(data);
     file = dataURLToFile(data, "image.png");
     link = uploadImage(file);
-    console.log(link.toString())
-    console.log("LINK !!!!")
     return link;
   } 
 }
@@ -119,69 +89,16 @@ async function uploadImage(file) {
       });
 
       const data = await response.json();
-      console.log('Full API Response:', data);  // Log the full response to inspect it
+      //console.log('Full API Response:', data);  // Log the full response to inspect it
 
       if (data.success) {
           console.log('Image uploaded:', data.data.link);
-          return data.data.link;
+          sendMessageToServer(JSON.stringify({ type: 'link', message: data.data.link})) ;
       } else {
           console.error('Upload failed:', data.data.error);
       }
   } catch (error) {
       console.error('Error uploading image:', error);
-  }
-}
-
-//Slideshow Gallery 
-let slideIndex = 1;
-showSlides(slideIndex);
-
-function plusSlides(n) {
-  showSlides(slideIndex += n);
-}
-
-function currentSlide(n) {
-  showSlides(slideIndex = n);
-}
-
-function showSlides(n) {
-  let i;
-  let slides = document.getElementsByClassName("mySlides");
-  let dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1}    
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";  
-  }
-  for (i = 0; i < dots.length; i++) {
-    dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";  
-  dots[slideIndex-1].className += " active";
-}
-
-function handleServerMessage(event) {
-  const message = JSON.parse(event.data);
-
-  switch (message.type) {
-      case 'start': // Starts the game 
-          console.log(message.message);
-          break;
-      
-      case 'victory':// If the player receives a victory message
-          canvas.removeEventListener('click', handleCanvasClick);
-          console.log(`Player wins! ${message}`);
-          const defeat = { type: 'defeat' } // Send indiciation that other side has lost to other player
-          sendMessageToServer(JSON.stringify(defeat));
-          alert("You win!");
-          break;
-
-      case 'defeat':// If the player receives a defeat message
-          canvas.removeEventListener('click', handleCanvasClick);
-          console.log(`You lose! ${message}`);
-          alert("You Lose!");
-          break;
-
   }
 }
 
@@ -202,3 +119,56 @@ function changeSessionID(newText) {
       console.error('Element with class "session" not found.');
     }
   }
+
+
+function updateFoodList(foodNames) {
+    const foodsDiv = document.getElementById('foods');
+    if (foodsDiv) {
+        if (Array.isArray(foodNames)) {
+            console.log('Received array of food names:');
+            
+            // Create a list of food names
+            const foodList = foodNames.map(foodName => `<li>${foodName}</li>`).join('');
+            
+            // Replace the content of the div with the list
+            foodsDiv.innerHTML = `<ul>${foodList}</ul>`;
+        } else {
+            console.log('Expected an array but received:', foodNames);
+            foodsDiv.innerHTML = '<p>No food items available.</p>';
+        }
+    } else {
+        console.error('Div with id "foods" not found.');
+    }
+}
+
+function updateRecipeContent(recipeMessage) {
+  const helpImageDiv = document.getElementById('helpImageR');
+  const helpImageDiv2 = document.getElementById('helpImageR2');
+  
+  if (helpImageDiv) {
+      // Process the recipeMessage to format text
+      let formattedMessage = recipeMessage;
+
+      // Replace **text** with <strong>text</strong>
+      formattedMessage = formattedMessage.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+      // Add a newline after periods, colons, and closed parentheses, but not if there's a number before the period
+      formattedMessage = formattedMessage
+          .replace(/([^\d])(\.|\:|\)\s*)/g, '$1$2<br/>')  // After periods, colons, and closing parentheses
+          .replace(/\.\s*(?!\d)/g, '.<br/>');  // Ensure no newline if number precedes period
+
+      // Replace the content of the div with the formatted recipe message
+      helpImageDiv.innerHTML = `<p style="text-align: left; margin-left: 100px;">${formattedMessage}</p>`;
+  } else {
+      console.error('Div with id "helpImageR" not found.');
+  }
+
+  if (helpImageDiv2) {
+      // Hide the second div
+      helpImageDiv2.style.visibility = 'hidden';
+  } else {
+      console.error('Div with id "helpImageR2" not found.');
+  }
+}
+
+
