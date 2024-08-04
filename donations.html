@@ -1,58 +1,115 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>FreshTrack</title>
-        <link rel="stylesheet" type="text/css" href="donations.css">
-        <script src = scripts.js></script>                       
-    </head>
-    <body>
-        <div class="topnav">
-            <a href="expiry.html">Expiry Tracker</a>
-            <a class="active" href="donations.html">Donations</a>
-            <a href="recipe.html">Recipes</a>
-            <a href="home.html">Home</a>
-            <h2 class="session">text here</h2> <!--CHANGE TEXT HERE-->
+
+<head>
+    <title>FreshTrack</title>
+    <link rel="stylesheet" type="text/css" href="donations.css">
+    <script src=scripts.js></script>
+    <style>
+        .container {
+            display: flex;
+            width: 90%;
+        }
+
+        .left-side,
+        .right-side {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .left-side {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-left: 200px;
+        }
+
+        .right-side {
+            text-align: center;
+            margin-right: 100px;
+        }
+
+        .right-side #foods {
+            text-align: center;
+        }
+
+        .cam {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #vid,
+        #canvas {
+            width: 320px;
+            height: 240px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .buttons-container {
+            width: 67.5%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .buttons #cambutton,
+        .buttons #picbutton {
+            background-color: #85AF71;
+            border: none;
+            color: white;
+            padding: 15px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 0px 10px;
+            border-radius: 20px;
+            position: relative;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topnav">
+        <a href="expiry.html">Expiry Tracker</a>
+        <a class="active" href="donations.html">Donations</a>
+        <a href="recipe.html">Recipes</a>
+        <a href="home.html">Home</a>
+        <h2 class="session">text here</h2> <!--CHANGE TEXT HERE-->
+    </div>
+
+    <div style="text-align: center; font-size: 30px;">
+        <h2>Food Donations</h2>
+    </div>
+
+    <div style="text-align: left; font-size: 25px;">
+        <h3>How To Get Started</h3>
+    </div>
+
+    <!-- Slideshow container -->
+
+    <!--Cam and buttons-->
+    <div class="container">
+        <div class="left-side">
+            <div class="cam">
+                <video id="vid" autoplay></video>
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="buttons-container buttons">
+                <button id="cambutton">Open Camera</button>
+                <button id="picbutton" onclick="takepicture()">Take Photo</button>
+            </div>
         </div>
 
-        <div style="text-align: center; font-size: 30px;">
-            <h2>Food Donations</h2>
+        <div class="right-side">
+            <h2><u>List of Foods</u></h2>
+            <div id="foods">
+                <p>oaisjdasidjao</p>
+            </div>
         </div>
+</body>
 
-        <div style="text-align: left; font-size: 25px;">
-            <h3>How To Get Started</h3>
-        </div>
-
-        <!-- Slideshow container -->
-        <div class="slideshow-container">
-
-            <div class="mySlides fade">
-              <div class="numbertext">1 / 3</div>
-              <img src="images/food.png" style="width:100%">
-              <div class="text">Caption Text</div>
-            </div>
-            
-            <div class="mySlides fade">
-              <div class="numbertext">2 / 3</div>
-              <img src="images/gumball.png" style="width:100%">
-              <div class="text">Caption Two</div>
-            </div>
-            
-            <div class="mySlides fade">
-              <div class="numbertext">3 / 3</div>
-              <img src="images/placeholder.png" style="width:100%">
-              <div class="text">Caption Three</div>
-            </div>
-            
-            <a class="prev" onclick="plusSlides(-1)">❮</a>
-            <a class="next" onclick="plusSlides(1)">❯</a>
-            
-            </div>
-            <br>
-            
-            <div style="text-align:center">
-              <span class="dot" onclick="currentSlide(1)"></span> 
-              <span class="dot" onclick="currentSlide(2)"></span> 
-              <span class="dot" onclick="currentSlide(3)"></span> 
-            </div>
-    </body>
 </html>
